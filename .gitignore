@@ -1,14 +1,11 @@
-.gradle
 /local.properties
 /.idea
-
-.DS_Store
 /build
+/gradle
+
+.gradle
+.DS_Store
 
 build.gradle
-app/build.gradle
-/gradle
-gradle/wrapper/gradle-wrapper.properties
 gradle.properties
 settings.gradle
-local.properties

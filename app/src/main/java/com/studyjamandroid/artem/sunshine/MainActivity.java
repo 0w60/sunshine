@@ -2,7 +2,9 @@ package com.studyjamandroid.artem.sunshine;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.Arrays;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 public class MainActivity extends Activity {
@@ -61,13 +63,44 @@ public class MainActivity extends Activity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-            String[] fakeDataArray = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-            List<String> fakeDataList = Arrays.asList(fakeDataArray);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.listItemForecastTextView, fakeDataList);
+            ArrayAdapter<Weather> adapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.listItemForecastTextView);
+            fetchWeatherForecast(adapter);
             ListView listViewForecast = (ListView) rootView.findViewById(R.id.listViewForecast);
             listViewForecast.setAdapter(adapter);
 
             return rootView;
+        }
+
+        private void fetchWeatherForecast(ArrayAdapter<Weather> adapter) {
+            URL url = buildUrl();
+            new GetWeatherTask(adapter).execute(url);
+        }
+
+        private URL buildUrl() {
+            String forecastBaseUrl = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+            String queryParam = "q";
+            String formatParam = "mode";
+            String unitsParam = "units";
+            String daysParam = "cnt";
+            String postCode = "Kiev";
+            String format = "json";
+            String units = "metric";
+            int numDays = 7;
+
+            Uri builtUri = Uri.parse(forecastBaseUrl).buildUpon()
+                    .appendQueryParameter(queryParam, postCode)
+                    .appendQueryParameter(formatParam, format)
+                    .appendQueryParameter(unitsParam, units)
+                    .appendQueryParameter(daysParam, Integer.toString(numDays))
+                    .build();
+
+            URL url = null;
+            try {
+                url = new URL(builtUri.toString());
+            } catch (MalformedURLException e) {
+                Log.w("buildUrl()", "Wrong URL", e);
+            }
+            return url;
         }
     }
 }
