@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.SoftReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,12 +19,12 @@ import java.util.Arrays;
 public class GetWeatherTask extends AsyncTask<URL, Void, ArrayList<Weather>> {
 
     private static final String TAG = "GetWeatherTask";
-    private final ArrayAdapter<Weather> adapter;
+    private final SoftReference<ArrayAdapter<Weather>> adapterSoftRef;
     private String jsonString;
 
 
     GetWeatherTask(ArrayAdapter<Weather> adapter) {
-        this.adapter = adapter;
+        adapterSoftRef = new SoftReference<>(adapter) ;
     }
 
     @Override
@@ -80,8 +81,10 @@ public class GetWeatherTask extends AsyncTask<URL, Void, ArrayList<Weather>> {
 
     @Override
     protected void onPostExecute(ArrayList<Weather> result) {
-        adapter.clear();
-        adapter.addAll(result);
-        cancel(true);
+        ArrayAdapter<Weather> adapter = adapterSoftRef.get();
+        if (adapter != null) {
+            adapter.clear();
+            adapter.addAll(result);
+        }
     }
 }
