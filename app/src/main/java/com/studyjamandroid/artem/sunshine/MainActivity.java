@@ -59,8 +59,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-//    Example: "geo:0,0?q=1600+Amphitheatre+Parkway%2C+CA"
-//    Note: All strings passed in the geo URI must be encoded. For example, the string 1st & Pike, Seattle should become 1st%20%26%20Pike%2C%20Seattle. Spaces in the string can be encoded with %20 or replaced with the plus sign (+).
     private Uri getGeolocation() {
         String prefLocationKey = getString(R.string.pref_location_key);
         String city = PreferenceManager.getDefaultSharedPreferences(this).getString(prefLocationKey, "Kiev");
@@ -69,7 +67,7 @@ public class MainActivity extends Activity {
         try {
             geolocation = Uri.parse(baseUri);
         } catch (RuntimeException e) {
-            Log.w(TAG, "Bad Uri");
+            Log.w(TAG, "Bad Uri", e);
         }
         return geolocation;
     }
@@ -87,23 +85,21 @@ public class MainActivity extends Activity {
 
     public static class PlaceholderFragment extends Fragment {
 
+        private Context context;
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            final Context context = getActivity();
+            context = getActivity();
             final ArrayAdapter<Weather> adapter = new ArrayAdapter<>(context, R.layout.list_item_forecast, R.id.listItemForecastTextView);
 
-            String prefLocationKey = getString(R.string.pref_location_key);
-            String city = PreferenceManager.getDefaultSharedPreferences(context).getString(prefLocationKey, "Kiev");
-            String prefTemprUnitsKey = getString(R.string.pref_tempr_units_key);
-            String unitsValue = PreferenceManager.getDefaultSharedPreferences(context).getString(prefTemprUnitsKey, "metric");
-            String units = (unitsValue.equals("C")) ? "metric" : "imperial";
+            String city = getCity();
+            String units = getUnits();
             fetchWeatherForecast(adapter, city, units);
 
             ListView listViewForecast = (ListView) rootView.findViewById(R.id.listViewForecast);
             listViewForecast.setAdapter(adapter);
-
             listViewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -117,19 +113,37 @@ public class MainActivity extends Activity {
             return rootView;
         }
 
-        private void fetchWeatherForecast(ArrayAdapter<Weather> adapter, String city, String units) {
+        private String getCity() {
+            String prefLocationKey = getString(R.string.pref_location_key);
+            String city = PreferenceManager.getDefaultSharedPreferences(context).getString(prefLocationKey, "Kiev");
+
+            return city;
+        }
+
+        private String getUnits() {
+            String prefTemprUnitsKey = getString(R.string.pref_tempr_units_key);
+            boolean preferenceExists = PreferenceManager.getDefaultSharedPreferences(context).contains(prefTemprUnitsKey);
+            if (preferenceExists) {
+                String unitsValue = PreferenceManager.getDefaultSharedPreferences(context).getString(prefTemprUnitsKey, "metric");
+
+                return ((unitsValue.equals("C")) ? "metric" : "imperial");
+            }
+
+            return "metric";
+        }
+
+        private static void fetchWeatherForecast(ArrayAdapter<Weather> adapter, String city, String units) {
             URL url = buildUrl(city, units);
             new GetWeatherTask(adapter).execute(url);
         }
 
-        private URL buildUrl(String city, String units) {
+        private static URL buildUrl(String city, String units) {
             String forecastBaseUrl = "http://api.openweathermap.org/data/2.5/forecast/daily?";
             String queryParam = "q";
             String formatParam = "mode";
             String unitsParam = "units";
             String daysParam = "cnt";
             String format = "json";
-//            String units = "metric";
             String numDays = "7";
 
             Uri builtUri = Uri.parse(forecastBaseUrl).buildUpon()

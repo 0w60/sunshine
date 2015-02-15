@@ -42,8 +42,10 @@ class WeatherDeserializer implements JsonDeserializer<Weather[]> {
 
     private String formatHighLows(float high, float low) {
         int roundedHigh = Math.round(high);
-        int roundedLow = Math.round(low);
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
+        int roundedLow  = Math.round(low);
+        String highTemp = (roundedHigh > 0) ? ('+' + Integer.toString(roundedHigh)) : Integer.toString(roundedHigh);
+        String lowTemp  = (roundedLow  > 0) ? ('+' + Integer.toString(roundedLow))  : Integer.toString(roundedLow);
+
+        return lowTemp + '/' + highTemp;
     }
 }
