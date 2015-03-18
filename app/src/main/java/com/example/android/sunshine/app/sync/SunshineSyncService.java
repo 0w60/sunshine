@@ -6,12 +6,13 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class SunshineSyncService extends Service {
+    private static final String TAG = "SunshineSyncService";
     private static final Object sSyncAdapterLock = new Object();
     private static SunshineSyncAdapter sSunshineSyncAdapter = null;
 
     @Override
     public void onCreate() {
-        Log.d("SunshineSyncService", "onCreate - SunshineSyncService");
+        Log.i(TAG, "onCreate()");
         synchronized (sSyncAdapterLock) {
             if (sSunshineSyncAdapter == null) {
                 sSunshineSyncAdapter = new SunshineSyncAdapter(getApplicationContext(), true);

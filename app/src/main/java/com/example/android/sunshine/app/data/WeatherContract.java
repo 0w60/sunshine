@@ -159,10 +159,7 @@ public class WeatherContract {
 
         public static long getStartDateFromUri(Uri uri) {
             String dateString = uri.getQueryParameter(COLUMN_DATE);
-            if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
-            else
-                return 0;
+            return ((dateString != null) && (!dateString.isEmpty())) ? Long.parseLong(dateString) : 0;
         }
     }
 }
