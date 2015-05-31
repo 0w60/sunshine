@@ -3,9 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.android.sunshine.app.ForecastFragment">
+
+    <TextView
+        android:id="@+id/txt_no_data_available"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_data_available"/>
+
     <ListView
-        style="@style/ForecastListStyle"
         android:id="@+id/listview_forecast"
+        style="@style/ForecastListStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null" />
